@@ -1,0 +1,19 @@
+[Unit]
+Description=Ather Bot private setup app
+After=network-online.target
+
+[Service]
+Type=simple
+User=promptql
+WorkingDirectory=@@ROOT@@
+Environment=ATHER_BOT_ROOT=@@ROOT@@
+ExecStart=@@ROOT@@/.venv/bin/ather-bot serve
+Restart=always
+RestartSec=3
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ReadWritePaths=@@ROOT@@/runtime
+
+[Install]
+WantedBy=multi-user.target

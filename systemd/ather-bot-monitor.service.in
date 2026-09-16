@@ -1,0 +1,15 @@
+[Unit]
+Description=Ather scooter telemetry monitor
+After=network-online.target
+ConditionPathExists=@@ROOT@@/runtime/secrets/ather_token
+
+[Service]
+Type=oneshot
+User=promptql
+WorkingDirectory=@@ROOT@@
+Environment=ATHER_BOT_ROOT=@@ROOT@@
+ExecStart=@@ROOT@@/.venv/bin/ather-bot monitor --once --json
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ReadWritePaths=@@ROOT@@/runtime

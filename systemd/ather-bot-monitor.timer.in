@@ -1,0 +1,12 @@
+[Unit]
+Description=Check Ather telemetry every five minutes
+
+[Timer]
+OnBootSec=2min
+OnUnitActiveSec=5min
+AccuracySec=15s
+Persistent=true
+Unit=ather-bot-monitor.service
+
+[Install]
+WantedBy=timers.target

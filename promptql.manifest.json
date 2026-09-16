@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "name": "ather-bot",
+  "runtime": "promptql-vm-v2",
+  "python": ">=3.11",
+  "artifact": {
+    "identifier": "ather-bot",
+    "title": "Ather Bot",
+    "kind": "web",
+    "port": 8085,
+    "readiness_path": "/readyz"
+  },
+  "integrations": [
+    {
+      "capability": "gmail.send",
+      "preferred_provider": "__gmail-v2",
+      "resolve_per_user": true,
+      "required": true
+    }
+  ],
+  "monitor_interval_seconds": 300,
+  "email_drain_cron": "*/30 * * * *",
+  "defaults": {
+    "battery_percent": 20,
+    "front_tyre_min_psi": 25,
+    "front_tyre_max_psi": 35,
+    "rear_tyre_min_psi": 27,
+    "rear_tyre_max_psi": 37
+  }
+}
