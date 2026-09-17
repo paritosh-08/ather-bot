@@ -2,7 +2,7 @@
 
 ## Secrets
 
-Never commit or paste Ather phone numbers, OTPs, JWTs, Gmail credentials,
+Never commit or paste Ather API tokens, Gmail credentials,
 PromptQL JWTs, or Tailscale credentials. Runtime secrets belong under
 `runtime/secrets/` with mode `0600`.
 

@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import base64
 import json
-import re
 import time
 from dataclasses import dataclass
 from typing import Any
@@ -31,15 +30,6 @@ class Telemetry:
     battery: float
     front: float
     rear: float
-
-
-def normalize_phone(value: str) -> str:
-    digits = re.sub(r"\D", "", value)
-    if digits.startswith("91") and len(digits) == 12:
-        digits = digits[2:]
-    if len(digits) != 10:
-        raise ValueError("Enter a valid 10-digit Indian mobile number.")
-    return digits
 
 
 def jwt_expiry(token: str) -> int:
@@ -76,31 +66,6 @@ class Client:
             return response.json()
         except ValueError as exc:
             raise AtherError("Ather returned a non-JSON response") from exc
-
-    def request_otp(self, phone: str) -> None:
-        self._request(
-            "POST",
-            "/auth/v2/generate-login-otp",
-            json={"email": "", "contact_no": normalize_phone(phone), "country_code": "IN"},
-        )
-
-    def verify_otp(self, phone: str, otp: str) -> tuple[str, int]:
-        otp_digits = re.sub(r"\D", "", otp)
-        if not 4 <= len(otp_digits) <= 8:
-            raise ValueError("Enter the OTP sent by Ather.")
-        data = self._request(
-            "POST",
-            "/auth/v2/verify-login-otp",
-            json={
-                "email": "",
-                "contact_no": normalize_phone(phone),
-                "userOtp": otp_digits,
-                "is_mobile_login": "true",
-                "country_code": "IN",
-            },
-        )
-        token = str(data.get("token", "")).removeprefix("Bearer ").strip()
-        return token, jwt_expiry(token)
 
     def scooters(self) -> list[dict[str, Any]]:
         data = self._request("GET", "/api/v1/auth/user/scooters/firebase-dbs")

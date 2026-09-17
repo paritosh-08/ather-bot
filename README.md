@@ -21,20 +21,20 @@ PromptQL should then:
 1. Check whether your Gmail integration is connected and can send mail.
 2. Install this repository into its VM.
 3. Publish a private **Ather Bot** App Artifact.
-4. Ask for your Ather-registered mobile number inside the app.
-5. Ask permission to send an OTP, then verify it inside the app.
-6. Try Ather directly. If Ather is unreachable, offer an isolated Tailscale login.
+4. Ask you to enter an existing Ather API token inside the app.
+5. Verify the token with a live Ather telemetry request.
+6. If Ather is unreachable, offer an isolated Tailscale login and retry.
 7. Discover your scooter and read live telemetry.
 8. Let you set battery/front/rear thresholds and recipient emails.
 9. Send a test email, activate a five-minute monitor, and show live status.
 
-Your phone number, OTP, and Ather JWT must never be pasted into PromptQL chat.
+Your Ather token must never be pasted into PromptQL chat.
 
 ## Prerequisites
 
 - PromptQL project with a **v2 VM**
 - Connected Gmail integration with send/compose permission
-- An Ather account and its registered Indian mobile number
+- An existing, unexpired Ather API token
 - Permission to publish an App Artifact, install user-owned `systemd` units, and
   create a recurring PromptQL trigger
 - If direct Ather access is blocked: Tailscale and an exit-node-capable device in
@@ -79,7 +79,7 @@ monitor-health event.
 ## Security
 
 - The App Artifact is restricted to the PromptQL user who installed it.
-- Mobile number, OTP, and JWT are collected only in the private app.
+- The Ather token is collected only in the private app and verified before storage.
 - Secrets live under `runtime/secrets/` with mode `0600`; runtime directories use
   `0700`.
 - Secrets are never printed, included in command arguments, committed, or stored
@@ -153,16 +153,11 @@ authorization again.
 
 ## Troubleshooting
 
-### OTP not received
-
-Confirm the registered number, wait before retrying, and check whether Ather
-reports rate limiting. Do not loop OTP requests automatically.
-
 ### Ather returns 403
 
-Compare a genuine `requests` call with consistent Ather mobile headers. Do not
-combine Chrome impersonation with `User-Agent: Ktor client`. If authenticated
-telemetry works from the same exit IP, the IP itself is not proven blocked.
+Confirm that the token is current. If the same token works from another machine,
+retry through the isolated Tailscale fallback. Do not change the VM's default
+route or infer that the token is invalid from an unauthenticated endpoint.
 
 ### No Tailscale exit node
 

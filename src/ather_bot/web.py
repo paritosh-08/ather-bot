@@ -5,11 +5,10 @@ import html
 import json
 import re
 import secrets
-import time
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import parse_qs
 
-from .ather import Client
+from .ather import Client, jwt_expiry
 from .config import DEFAULT_SETTINGS, Paths
 from .db import connect, get_settings, get_status, set_settings
 from .util import save_secret
@@ -57,13 +56,12 @@ button{{background:#1769e0;color:white;border:0;border-radius:8px;padding:11px 1
 <label>Email recipients<textarea name="email_recipients">{html.escape(settings['email_recipients'])}</textarea></label>
 <label><input style="display:inline;width:auto" type="checkbox" name="email_enabled" {checked}> Email alerts enabled</label>
 <button>Save settings</button></form></div>
-<div class="card"><h2>Ather login</h2><form method="post" action="/otp/request">
-<input type="hidden" name="csrf" value="{csrf}"><label>Registered mobile number<input name="phone" inputmode="numeric" autocomplete="tel"></label>
-<button>Send OTP</button></form>
-<form method="post" action="/otp/verify"><input type="hidden" name="csrf" value="{csrf}">
-<label>Registered mobile number<input name="phone" inputmode="numeric" autocomplete="tel"></label>
-<label>OTP<input name="otp" inputmode="numeric" autocomplete="one-time-code"></label>
-<button>Verify OTP</button></form></div></body></html>"""
+<div class="card"><h2>Ather authentication</h2>
+<p>Paste an existing Ather API token. It is verified against live telemetry before being saved.</p>
+<form method="post" action="/token">
+<input type="hidden" name="csrf" value="{csrf}">
+<label>Ather API token<input type="password" name="token" autocomplete="off" required></label>
+<button>Verify and save token</button></form></div></body></html>"""
     return body.encode()
 
 
@@ -114,7 +112,7 @@ class App:
                 self.send_html()
 
             def do_POST(self) -> None:
-                if self.path not in ("/settings", "/otp/request", "/otp/verify"):
+                if self.path not in ("/settings", "/token"):
                     self.send_error(404)
                     return
                 if not self.authorized():
@@ -156,21 +154,22 @@ class App:
                         set_settings(conn, values)
                         message = '<p class="msg">Settings saved.</p>'
                     else:
-                        client = Client(socks_url=settings["socks_url"])
-                        phone = form.get("phone", [""])[0]
-                        if self.path == "/otp/request":
-                            client.request_otp(phone)
-                            message = '<p class="msg">OTP sent by Ather.</p>'
-                        else:
-                            token, expiry = client.verify_otp(phone, form.get("otp", [""])[0])
-                            authenticated = Client(token=token, socks_url=settings["socks_url"])
-                            reading = authenticated.telemetry(settings["selected_scooter"] or None)
-                            save_secret(app.paths.token, token)
-                            set_settings(conn, {"selected_scooter": reading.scooter_id})
-                            message = (
-                                '<p class="msg">Ather login saved and telemetry verified. '
-                                f'Token expires {time.strftime("%Y-%m-%d", time.gmtime(expiry))}.</p>'
-                            )
+                        token = form.get("token", [""])[0].strip()
+                        if token.startswith("Bearer "):
+                            token = token.removeprefix("Bearer ").strip()
+                        jwt_expiry(token)
+                        authenticated = Client(
+                            token=token,
+                            socks_url=settings["socks_url"],
+                        )
+                        reading = authenticated.telemetry(
+                            settings["selected_scooter"] or None
+                        )
+                        save_secret(app.paths.token, token)
+                        set_settings(conn, {"selected_scooter": reading.scooter_id})
+                        message = (
+                            '<p class="msg">Ather token saved and live telemetry verified.</p>'
+                        )
                     self.send_html(message=message)
                 except Exception as exc:  # noqa: BLE001
                     self.send_html(400, f'<p class="msg">{html.escape(str(exc))}</p>')

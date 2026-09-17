@@ -4,19 +4,18 @@ This file is for the PromptQL bot operating this repository.
 
 ## Non-negotiable safety rules
 
-1. Never ask for or echo the phone number, OTP, Ather JWT, Gmail token, or
-   Tailscale credential in chat.
-2. Collect Ather authentication data only through the owner-restricted app.
-3. Ask before sending an OTP and before sending a test email.
-4. Try Ather directly before offering Tailscale.
+1. Never ask for or echo the Ather token, Gmail token, or Tailscale credential
+   in chat.
+2. Collect the Ather token only through the owner-restricted app.
+3. Ask before sending a test email.
+4. Try authenticated Ather telemetry directly before offering Tailscale.
 5. Route only Ather requests through Tailscale's local SOCKS proxy.
 6. Never install/enable machine-wide Tailscale, accept DNS/routes, or change the
    VM default route.
-7. Do not infer IP blocking from an unauthenticated 403 alone.
-8. Do not persist `$PROMPTQL_USER_JWT`.
-9. Do not claim success until app readiness, telemetry, timer, Gmail profile,
+7. Do not persist `$PROMPTQL_USER_JWT`.
+8. Do not claim success until app readiness, telemetry, timer, Gmail profile,
    and test delivery have all been verified.
-10. Never commit generated runtime files or downloaded binaries.
+9. Never commit generated runtime files or downloaded binaries.
 
 ## Installation flow
 
@@ -62,13 +61,15 @@ Artifact named `ather-bot` using:
 The app identifies the visitor through `X-PromptQL-Visitor-Token` and permits
 configuration only for the installer user ID.
 
-### 4. User authentication
+### 4. Ather authentication
 
-Ask the user to open the app. In the app they enter the registered number and
-press **Send OTP**. The app first calls Ather directly using genuine Python
-`requests` and internally consistent mobile-app headers.
+Ask the user to open the app and paste an existing Ather API token there. Never
+ask them to put it in chat. The app strips an optional `Bearer` prefix, checks
+the token's expiry, discovers the scooter, and verifies live telemetry before
+atomically storing it under `runtime/secrets/ather_token`.
 
-If the request fails with a classified network/blocking error:
+Try authenticated telemetry directly first. If that fails with a classified
+network/blocking error:
 
 1. Ask whether the user wants the isolated Tailscale fallback.
 2. Download the pinned Tailscale release through
@@ -79,10 +80,8 @@ If the request fails with a classified network/blocking error:
 6. List only exit-node-capable devices and ask the user to select one.
 7. Configure the exit node for the userspace daemon.
 8. Verify direct egress/default route remain unchanged and SOCKS works.
-9. Retry Ather through SOCKS.
-
-The app verifies the OTP, stores the JWT under `runtime/secrets/ather_token`,
-discovers scooters, and performs a live telemetry check.
+9. Ask the user to resubmit the token in the private app so telemetry can be
+   verified and the token stored.
 
 ### 5. Configure and activate
 
