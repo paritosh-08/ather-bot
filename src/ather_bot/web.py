@@ -158,10 +158,7 @@ class App:
                         if token.startswith("Bearer "):
                             token = token.removeprefix("Bearer ").strip()
                         jwt_expiry(token)
-                        authenticated = Client(
-                            token=token,
-                            socks_url=settings["socks_url"],
-                        )
+                        authenticated = Client(token=token)
                         reading = authenticated.telemetry(
                             settings["selected_scooter"] or None
                         )

@@ -5,11 +5,9 @@ import json
 import sys
 
 from .config import DEFAULT_SETTINGS, Paths
-from .db import connect, get_settings, get_status, set_settings
+from .db import connect, get_settings, get_status
 from .gmail import configure, drain, profile, queue_test
 from .monitor import record_failure, run
-from .tailscale import login_url, proof, set_exit_node, start, stop
-from .tailscale import status as tailscale_status
 from .web import serve
 
 
@@ -23,8 +21,6 @@ def doctor(paths: Paths) -> dict:
         "ather_token_configured": paths.token.exists(),
         "gmail_provider_configured": bool(settings["gmail_provider"]),
         "email_recipients_configured": bool(settings["email_recipients"]),
-        "socks_configured": bool(settings["socks_url"]),
-        "tailscale": tailscale_status(paths),
     }
 
 
@@ -64,15 +60,7 @@ def main() -> None:
     gmail_test.add_argument("--recipient", action="append", required=True)
 
     sub.add_parser("gmail-drain")
-    sub.add_parser("tailscale-start")
-    sub.add_parser("tailscale-login")
-    sub.add_parser("tailscale-status")
-    sub.add_parser("tailscale-stop")
 
-    tailscale_exit = sub.add_parser("tailscale-set-exit")
-    tailscale_exit.add_argument("--ip", required=True)
-
-    sub.add_parser("network-proof")
     sub.add_parser("serve")
 
     args = parser.parse_args()
@@ -90,20 +78,6 @@ def main() -> None:
             result = queue_test(paths, args.recipient)
         elif args.command == "gmail-drain":
             result = drain(paths)
-        elif args.command == "tailscale-start":
-            result = start(paths)
-        elif args.command == "tailscale-login":
-            result = login_url(paths)
-        elif args.command == "tailscale-status":
-            result = tailscale_status(paths)
-        elif args.command == "tailscale-stop":
-            result = stop(paths)
-        elif args.command == "tailscale-set-exit":
-            result = set_exit_node(paths, args.ip)
-            conn = connect(paths.database)
-            set_settings(conn, {"socks_url": result["socks_url"]})
-        elif args.command == "network-proof":
-            result = proof()
         elif args.command == "serve":
             serve(paths)
             return

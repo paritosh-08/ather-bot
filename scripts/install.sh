@@ -9,7 +9,7 @@ if [[ -z "$OWNER_USER_ID" ]]; then
 fi
 
 cd "$ROOT"
-install -d -m 0700 "$ROOT/runtime" "$ROOT/runtime/secrets" "$ROOT/runtime/tailscale"
+install -d -m 0700 "$ROOT/runtime" "$ROOT/runtime/secrets"
 printf '%s' "$OWNER_USER_ID" > "$ROOT/runtime/owner_user_id"
 chmod 0600 "$ROOT/runtime/owner_user_id"
 chown -R promptql:promptql "$ROOT/runtime"
@@ -27,4 +27,4 @@ install -m 0644 systemd/ather-bot-monitor.timer.in \
 
 systemctl daemon-reload
 systemctl enable --now ather-bot-app.service
-echo "Installed. Complete Ather login and Gmail configuration before enabling the monitor."
+echo "Installed. Complete Ather token and Gmail configuration before enabling the monitor."

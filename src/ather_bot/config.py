@@ -13,7 +13,6 @@ class Paths:
     database: Path
     token: Path
     owner: Path
-    tailscale: Path
 
     @classmethod
     def from_env(cls) -> Paths:
@@ -26,7 +25,6 @@ class Paths:
             database=runtime / "ather-bot.db",
             token=runtime / "secrets" / "ather_token",
             owner=runtime / "owner_user_id",
-            tailscale=runtime / "tailscale",
         )
 
 
@@ -40,6 +38,5 @@ DEFAULT_SETTINGS = {
     "email_enabled": "1",
     "gmail_provider": "",
     "gmail_mailbox": "",
-    "socks_url": "",
     "selected_scooter": "",
 }

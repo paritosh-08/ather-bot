@@ -14,7 +14,6 @@ def paths(tmp_path: Path) -> Paths:
         database=runtime / "ather-bot.db",
         token=runtime / "secrets" / "ather_token",
         owner=runtime / "owner_user_id",
-        tailscale=runtime / "tailscale",
     )
 
 

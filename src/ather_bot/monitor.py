@@ -75,7 +75,7 @@ def run(paths: Paths, bootstrap: bool = False) -> dict:
     settings = get_settings(conn, DEFAULT_SETTINGS)
     prior_status = get_status(conn)
     token = paths.token.read_text(encoding="utf-8").strip()
-    client = Client(token=token, socks_url=settings["socks_url"])
+    client = Client(token=token)
     reading = client.telemetry(settings["selected_scooter"] or None)
     values = {"battery": reading.battery, "front": reading.front, "rear": reading.rear}
     limits = {

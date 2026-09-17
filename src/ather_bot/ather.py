@@ -46,13 +46,11 @@ def jwt_expiry(token: str) -> int:
 
 
 class Client:
-    def __init__(self, token: str | None = None, socks_url: str = "", timeout: int = 30):
+    def __init__(self, token: str | None = None, timeout: int = 30):
         self.session = requests.Session()
         self.session.headers.update(APP_HEADERS)
         if token:
             self.session.headers["Authorization"] = f"Bearer {token.strip()}"
-        if socks_url:
-            self.session.proxies.update({"http": socks_url, "https": socks_url})
         self.timeout = timeout
 
     def _request(self, method: str, path: str, **kwargs: Any) -> dict[str, Any]:
