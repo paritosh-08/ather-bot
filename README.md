@@ -95,7 +95,7 @@ Assuming installation root `/workspace/ather-bot`:
 cd /workspace/ather-bot
 .venv/bin/ather-bot doctor
 .venv/bin/ather-bot status
-.venv/bin/ather-bot monitor --once
+.venv/bin/ather-bot monitor
 .venv/bin/ather-bot gmail-drain
 journalctl -u ather-bot-monitor.service -n 100 --no-pager
 systemctl list-timers ather-bot-monitor.timer --no-pager
@@ -156,6 +156,13 @@ The App Artifact declaration does not start the web service.
 
 Ather may have changed its private schema. Save a redacted response shape (keys
 and types only), update the parser, and add a fixture-based regression test.
+
+## Development
+
+```bash
+uv sync --all-extras
+./scripts/check.sh
+```
 
 ## Limitations
 

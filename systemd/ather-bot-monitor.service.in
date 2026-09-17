@@ -8,7 +8,7 @@ Type=oneshot
 User=promptql
 WorkingDirectory=@@ROOT@@
 Environment=ATHER_BOT_ROOT=@@ROOT@@
-ExecStart=@@ROOT@@/.venv/bin/ather-bot monitor --once --json
+ExecStart=@@ROOT@@/.venv/bin/ather-bot monitor
 NoNewPrivileges=true
 PrivateTmp=true
 ProtectSystem=strict

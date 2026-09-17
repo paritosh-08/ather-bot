@@ -16,14 +16,17 @@ class Paths:
 
     @classmethod
     def from_env(cls) -> Paths:
-        root = Path(os.environ.get("ATHER_BOT_ROOT", "/workspace/ather-bot")).resolve()
+        root = Path(
+            os.environ.get("ATHER_BOT_ROOT", "/workspace/ather-bot")
+        ).resolve()
         runtime = root / "runtime"
+        secrets = runtime / "secrets"
         return cls(
             root=root,
             runtime=runtime,
-            secrets=runtime / "secrets",
+            secrets=secrets,
             database=runtime / "ather-bot.db",
-            token=runtime / "secrets" / "ather_token",
+            token=secrets / "ather_token",
             owner=runtime / "owner_user_id",
         )
 

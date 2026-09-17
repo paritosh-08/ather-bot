@@ -73,7 +73,7 @@ never OAuth credentials.
 Run the alert-free baseline:
 
 ```bash
-.venv/bin/ather-bot monitor --once --bootstrap
+.venv/bin/ather-bot monitor --bootstrap
 ```
 
 After explicit approval, send one Gmail test and enable/start
